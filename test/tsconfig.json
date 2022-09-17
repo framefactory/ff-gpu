@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "CommonJS",
+        "experimentalDecorators": true,
+        "sourceMap": true,
+
+        "outDir": "../dist/test",
+        "rootDir": ".",
+
+        "baseUrl": ".",
+        "paths": {
+            "@ff/ui/*": [ "../src/*" ],
+            "@ff/core/*": [ "../../core/src/*" ]
+        }
+    },
+    "include": [
+        "**/*"
+    ],
+    "references": [
+        { "path": ".." }
+    ]
+}

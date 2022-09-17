@@ -3,8 +3,8 @@
 .vscode/
 node_modules/
 
-dist/
-doc/
+test/
+dist/test/
 
 # FILES
 .env

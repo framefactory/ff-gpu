@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "target": "ES2020",
+        "module": "CommonJS",
+        "experimentalDecorators": true,
+        "sourceMap": true,
+
+        "outDir": "dist/exports",
+        "rootDir": "src",
+
+        "typeRoots": [
+            "../../node_modules/@webgpu/types",
+            "../../node_modules/@types"
+        ],
+
+        "baseUrl": ".",
+        "paths": {
+            "@ff/core/*": [ "../core/src/*" ]
+        }
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "references": [
+        { "path":  "../core" }
+    ]
+}
