@@ -5,13 +5,6 @@
  * License: MIT
  */
 
-import * as path from "path";
-import * as moduleAlias from "module-alias";
-
-moduleAlias.addAliases({
-    "@ff/core": path.resolve(__dirname, "../../../core/dist/exports"),
-});
-
 // define vars on node global object (usually done by Webpack)
 global["ENV_DEVELOPMENT"] = false;
 global["ENV_PRODUCTION"] = true;

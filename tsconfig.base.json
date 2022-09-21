@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        //"strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "checkJs": true,
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "useDefineForClassFields": false,
+        "experimentalDecorators": true
+    }
+}

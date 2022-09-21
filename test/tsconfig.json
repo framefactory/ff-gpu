@@ -1,23 +1,15 @@
 {
+    "extends": "../tsconfig.base.json",
+
     "compilerOptions": {
-        "target": "ES2020",
-        "module": "CommonJS",
-        "experimentalDecorators": true,
-        "sourceMap": true,
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
 
-        "outDir": "../dist/test",
+        "outDir": "../build/test",
         "rootDir": ".",
-
-        "baseUrl": ".",
-        "paths": {
-            "@ff/ui/*": [ "../src/*" ],
-            "@ff/core/*": [ "../../core/src/*" ]
-        }
     },
-    "include": [
-        "**/*"
-    ],
-    "references": [
-        { "path": ".." }
+    "files": [
+        "index.ts"
     ]
 }

@@ -1,9 +1,11 @@
 # FOLDERS
 .idea/
 .vscode/
+.cache/
+.pnpm-store/
 node_modules/
 
-dist/
+build/
 doc/
 
 # FILES
@@ -11,3 +13,4 @@ doc/
 .DS_Store
 *.log
 *.tsbuildinfo
+*.tgz

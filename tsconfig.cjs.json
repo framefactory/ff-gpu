@@ -3,14 +3,14 @@
 
     "compilerOptions": {
         "target": "ES2022",
-        "module": "ESNext",
+        "module": "CommonJS",
         "moduleResolution": "NodeNext",
 
         "composite": true,
         "declaration": true,
         "declarationMap": true,
         "declarationDir": "./build/types",
-        "outDir": "./build/esm",
+        "outDir": "./build/cjs",
         "rootDir": "./src",
 
         "baseUrl": "..",
@@ -23,7 +23,7 @@
         "./src/**/*"
     ],
     "references": [
-        { "path": "../core/tsconfig.json" },
-        { "path": "../geo/tsconfig.json" }
+        { "path": "../core/tsconfig.cjs.json" },
+        { "path": "../geo/tsconfig.cjs.json" }
     ]
 }
