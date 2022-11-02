@@ -6,6 +6,11 @@
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "useDefineForClassFields": false,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+
+        "typeRoots": [
+            "node_modules/@webgpu/types",
+            "node_modules/@types"
+        ],
     }
 }
