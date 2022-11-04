@@ -41,6 +41,16 @@ export class GPUSurface
         return this.context.canvas;
     }
 
+    getCurrentTexture(): GPUTexture
+    {
+        return this.context.getCurrentTexture();
+    }
+
+    getCurrentTextureView(): GPUTextureView
+    {
+        return this.context.getCurrentTexture()?.createView();
+    }
+
     resize(width: number, height: number)
     {
         this.size.width = width;

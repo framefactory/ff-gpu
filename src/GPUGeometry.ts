@@ -43,13 +43,11 @@ export class GPUGeometry
 
     readonly geometry: Geometry;
     readonly device: GPUDevice;
-    readonly vertexBufferLayout: Readonly<GPUVertexBufferLayout>;
 
     constructor(device: GPUDevice, geometry: Geometry)
     {
         this.geometry = geometry;
         this.device = device;
-        this.vertexBufferLayout = this._createVertexBufferLayout();
     }
 
     get topology(): GPUPrimitiveTopology {
@@ -123,7 +121,7 @@ export class GPUGeometry
      * @param stepMode The array step mode, default is "vertex".
      * @returns The vertex buffer layout.
      */
-    private _createVertexBufferLayout(stepMode: GPUVertexStepMode = "vertex"): GPUVertexBufferLayout
+    createVertexBufferLayout(stepMode: GPUVertexStepMode = "vertex"): GPUVertexBufferLayout
     {
         const attrs = this.geometry.layout.attributes;
         const arrayStride = attrs.length > 0 ? attrs[0].stride : 0;
