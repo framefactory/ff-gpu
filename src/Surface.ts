@@ -9,7 +9,7 @@
  * The surface class represents a HTML canvas element configured for WebGPU use
  * with a specific {@link GPUDevice}.
  */
-export class GPUSurface
+export class Surface
 {
     device: Readonly<GPUDevice>;
     context: Readonly<GPUCanvasContext>;

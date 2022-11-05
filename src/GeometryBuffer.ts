@@ -33,7 +33,7 @@ const _webgpuTopologyName: Record<ETopology, GPUPrimitiveTopology> = {
 }
 
 
-export class GPUGeometry
+export class GeometryBuffer
 {
     vertexBuffer: GPUBuffer = null;
     vertexBufferUsage = GPUBufferUsage.VERTEX;
@@ -101,12 +101,6 @@ export class GPUGeometry
             usage: this.indexBufferUsage,
             mappedAtCreation: true
         });
-
-        // const va = new ArrayBuffer(geo.vertexBufferSize);
-        // const ia = new ArrayBuffer(geo.indexBufferSize);
-        // geo.generate(va, ia);
-        // console.log(new Float32Array(va));
-        // console.log(new Uint32Array(ia));
 
         const vertexArray = this.vertexBuffer.getMappedRange();
         const indexArray = this.indexBuffer.getMappedRange();
