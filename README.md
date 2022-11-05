@@ -14,4 +14,3 @@ Copyright 2022 [Frame Factory GmbH](https://framefactory.ch), [Ralph Wiedemeier]
 > **Note**  
 > Library is early stage and work in progress. Expect
 bugs and frequent breaking changes.
-

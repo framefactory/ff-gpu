@@ -11,16 +11,20 @@
  */
 export class Surface
 {
+    /** The GPU device used with this surface. */
     device: Readonly<GPUDevice>;
+    /** The WebGPU context for this surface. */
     context: Readonly<GPUCanvasContext>;
+    /** The format of the surface. */
     readonly format: GPUTextureFormat;
+    /** The size of the surface. */
     readonly size: GPUExtent3DDictStrict;
 
     /**
      * Creates a surface instance by configuring the given {@link HTMLCanvasElement}
      * for use with the given {@link GPUDevice}.
      */
-    constructor(device: GPUDevice, canvas: HTMLCanvasElement, transparent = false)
+    constructor(device: GPUDevice, canvas: HTMLCanvasElement | OffscreenCanvas, transparent = false)
     {
         this.device = device;
         this.context = canvas.getContext("webgpu");
@@ -37,32 +41,46 @@ export class Surface
         });
     }
 
+    /**
+     * Returns the canvas this surface belongs to.
+     */
     get canvas(): HTMLCanvasElement | OffscreenCanvas {
         return this.context.canvas;
     }
 
+    /**
+     * Retrieves a target texture to render onto this surface.
+     */
     getCurrentTexture(): GPUTexture
     {
         return this.context.getCurrentTexture();
     }
 
+    /**
+     * Retrieves a texture view for the current target texture.
+     */
     getCurrentTextureView(): GPUTextureView
     {
         return this.context.getCurrentTexture()?.createView();
     }
 
+    /**
+     * Changes the size of the surface.
+     * @param width Width in physical pixels.
+     * @param height Height in physical pixels.
+     */
     resize(width: number, height: number)
     {
         this.size.width = width;
         this.size.height = height;
 
-        const canvas = this.canvas;
-        if (canvas instanceof HTMLCanvasElement) {
-            canvas.width = width;
-            canvas.height = height;    
-        }
+        this.canvas.width = width;
+        this.canvas.height = height;    
     }
 
+    /**
+     * Destroys the surface including the underlying WebGPU context.
+     */
     destroy()
     {
         this.context.unconfigure();
