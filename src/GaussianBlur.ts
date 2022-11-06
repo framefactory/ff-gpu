@@ -103,49 +103,56 @@ export class GaussianBlur
             throw RangeError("target texture usage must include GPUTextureUsage.STORAGE_BINDING");
         }
 
-        const temp = device.createTexture(textureDesc);
-        const tempView = temp.createView();
-
-        this._writeParams(sigmaHorz, false);
-        this._writeParams(sigmaVert, true);
-
         const encoder = device.createCommandEncoder();
-        const horzPass = encoder.beginComputePass();
-        horzPass.setPipeline(this._pipeline);
-        horzPass.setBindGroup(0, device.createBindGroup({
-            layout: this._bindGroupLayout,
-            entries: [
-                { binding: 0, resource: { buffer: this._paramsBuffer[0] } },
-                { binding: 1, resource: this._sampler },
-                { binding: 2, resource: source.createView() },
-                { binding: 3, resource: tempView },
-            ],
-        }));
-        horzPass.dispatchWorkgroups(width, height)
-        horzPass.end();
 
-        const vertPass = encoder.beginComputePass();
-        vertPass.setPipeline(this._pipeline);
-        vertPass.setBindGroup(0, device.createBindGroup({
-            layout: this._bindGroupLayout,
-            entries: [
-                { binding: 0, resource: { buffer: this._paramsBuffer[1] } },
-                { binding: 1, resource: this._sampler },
-                { binding: 2, resource: tempView },
-                { binding: 3, resource: target.createView() },
-            ],
-        }));
-        vertPass.dispatchWorkgroups(width, height)
-        vertPass.end();
+        const twoPasses = sigmaHorz > 0 && sigmaVert > 0;
+        const temp = twoPasses ? device.createTexture(textureDesc) : null;
+        const tempView = temp?.createView();    
+
+        if (sigmaHorz > 0) {
+            this._writeParams(sigmaHorz, false);
+
+            const horzPass = encoder.beginComputePass();
+            horzPass.setPipeline(this._pipeline);
+            horzPass.setBindGroup(0, device.createBindGroup({
+                layout: this._bindGroupLayout,
+                entries: [
+                    { binding: 0, resource: { buffer: this._paramsBuffer[0] } },
+                    { binding: 1, resource: this._sampler },
+                    { binding: 2, resource: source.createView() },
+                    { binding: 3, resource: twoPasses ? tempView : target.createView() },
+                ],
+            }));
+            horzPass.dispatchWorkgroups(width, height)
+            horzPass.end();
+        }
+        if (sigmaVert > 0) {
+            this._writeParams(sigmaVert, true);
+
+            const vertPass = encoder.beginComputePass();
+            vertPass.setPipeline(this._pipeline);
+            vertPass.setBindGroup(0, device.createBindGroup({
+                layout: this._bindGroupLayout,
+                entries: [
+                    { binding: 0, resource: { buffer: this._paramsBuffer[1] } },
+                    { binding: 1, resource: this._sampler },
+                    { binding: 2, resource: twoPasses ? tempView : source.createView() },
+                    { binding: 3, resource: target.createView() },
+                ],
+            }));
+            vertPass.dispatchWorkgroups(width, height)
+            vertPass.end();
+        }
+
         device.queue.submit([ encoder.finish() ]); 
+        temp?.destroy();
 
-        temp.destroy();
         return target;
     }
 
     private _writeParams(sigma: number, isVertical: boolean)
     {
-        const extent = Math.ceil(sigma * 4);
+        const extent = Math.ceil(sigma * 3.3);
         const delta = 1;
 
         this._paramsArray.set([
