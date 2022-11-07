@@ -45,6 +45,7 @@ fn blur(
 
     var p = vec3f(params.g0, params.g1, params.g1 * params.g1);
     var sum = p.x * textureLoad(inTexture, global_id.xy, 0);
+    var weights = p.x;
 
     for(var i: f32 = 1.0; i < N; i += 2.0) {
         let p1 = vec3f(p.xy * p.yz, p.z);
@@ -54,9 +55,10 @@ fn blur(
         let offset = step * (i + f);
         sum += pp * textureSampleLevel(inTexture, linearFilter, coords + offset, 0);
         sum += pp * textureSampleLevel(inTexture, linearFilter, coords - offset, 0);
+        weights += pp * 2.0;
     }
 
-    textureStore(outTexture, global_id.xy, sum);
+    textureStore(outTexture, global_id.xy, sum / weights);
 }
 
 // single-step incremental blur
@@ -72,13 +74,15 @@ fn _blur(
 
     var p = vec3f(params.g0, params.g1, params.g1 * params.g1);
     var sum = p.x * textureLoad(inTexture, coords, 0);
+    var weights = p.x;
 
     for(var i: i32 = 1; i < N; i++) {
         p = vec3f(p.xy * p.yz, p.z);
         let offset = step * i;
         sum += p.x * textureLoad(inTexture, coords + offset, 0);
         sum += p.x * textureLoad(inTexture, coords - offset, 0);
+        weights += p.x * 2.0;
     }
 
-    textureStore(outTexture, coords, sum);
+    textureStore(outTexture, coords, sum / weights);
 }

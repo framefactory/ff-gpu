@@ -1,5 +1,5 @@
 /**
- * FF Typescript Foundation Library
+ * FF Typescript Foundation Library - WebGPU Tools
  * Copyright 2022 Ralph Wiedemeier, Frame Factory GmbH
  *
  * License: MIT
@@ -11,6 +11,11 @@
  */
 export class Surface
 {
+    static getPreferredFormat(): GPUTextureFormat
+    {
+        return navigator.gpu.getPreferredCanvasFormat();
+    }
+
     /** The GPU device used with this surface. */
     device: Readonly<GPUDevice>;
     /** The WebGPU context for this surface. */
@@ -48,6 +53,13 @@ export class Surface
         return this.context.canvas;
     }
 
+    get width(): number {
+        return this.size.width;
+    }
+    get height(): number {
+        return this.size.height;
+    }
+
     /**
      * Retrieves a target texture to render onto this surface.
      */
@@ -71,11 +83,14 @@ export class Surface
      */
     resize(width: number, height: number)
     {
-        this.size.width = width;
-        this.size.height = height;
+        width = Math.round(width);
+        height = Math.round(height);
 
         this.canvas.width = width;
         this.canvas.height = height;    
+
+        this.size.width = width;
+        this.size.height = height;
     }
 
     /**

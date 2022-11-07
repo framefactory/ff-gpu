@@ -5,7 +5,7 @@
  * License: MIT
  */
 
-import blurCode from "../shader/incremental_blur.wgsl";
+import blurCode from "../shader/gaussianBlur.wgsl";
 
 /**
  * Computes a gaussian blur using compute shaders.
@@ -49,7 +49,7 @@ export class GaussianBlur
             entries: [{
                 binding: 0,
                 visibility: GPUShaderStage.COMPUTE,
-                buffer: { type: "uniform", minBindingSize: this._paramsArray.byteLength },
+                buffer: { type: "uniform" },
             }, {
                 binding: 1,
                 visibility: GPUShaderStage.COMPUTE,
@@ -109,7 +109,7 @@ export class GaussianBlur
         const temp = twoPasses ? device.createTexture(textureDesc) : null;
         const tempView = temp?.createView();    
 
-        if (sigmaHorz > 0) {
+        if (sigmaHorz > 0 || sigmaVert <= 0) {
             this._writeParams(sigmaHorz, false);
 
             const horzPass = encoder.beginComputePass();
@@ -159,8 +159,8 @@ export class GaussianBlur
             isVertical ? 0 : delta,
             isVertical ? delta : 0,
             extent,
-            1.0 / (Math.sqrt(2.0 * Math.PI) * sigma),
-            Math.exp(-0.5 / (sigma * sigma)),
+            sigma > 0 ? 1.0 / (Math.sqrt(2.0 * Math.PI) * sigma) : 1,
+            sigma > 0 ? Math.exp(-0.5 / (sigma * sigma)) : 1,
         ]);
 
         this.device.queue.writeBuffer(this._paramsBuffer[isVertical ? 1 : 0], 0, this._paramsArray)
