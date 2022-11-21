@@ -5,60 +5,152 @@
  * License: MIT
  */
 
+import { Dictionary } from "@ffweb/core/types.js";
+
+////////////////////////////////////////////////////////////////////////////////
+
+interface IUniformMember
+{
+    offset: number;
+    size: number;
+}
+
 export class UniformBuffer
 {
     readonly device: GPUDevice;
-    readonly hostBuffer: ArrayBuffer;
-    readonly deviceBuffer: GPUBuffer;
-    readonly byteSize: number;
 
-    private _floatArray: Float32Array;
-    private _intArray: Int32Array;
+    private _arrayBuffer: ArrayBuffer = null;
+    private _floatArray: Float32Array = null;
+    private _intArray: Int32Array = null;
+    private _elementCount = 0;
+    private _byteSize = 0;
+    private _declarations: string[] = [];
+    private _members: Dictionary<IUniformMember> = {}; 
 
-    constructor(device: GPUDevice, elementCount: number)
+    constructor(device: GPUDevice)
     {
         this.device = device;
+    }
 
-        const elementSize = Float32Array.BYTES_PER_ELEMENT;
-        const byteSize = this.byteSize = elementCount * elementSize;
+    addFloat(key: string): this
+    {
+        this._declarations.push(`${key}: f32,`);
+        this._members[key] = {
+            offset: this._elementCount,
+            size: 1,
+        };
+        this._elementCount += 1;
 
-        this.hostBuffer = new ArrayBuffer(byteSize);
-        this.deviceBuffer = device.createBuffer({
-            size: byteSize,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        return this;
+    }
+
+    addInt(key: string): this
+    {
+        this._declarations.push(`${key}: i32,`);
+        this._members[key] = {
+            offset: this._elementCount,
+            size: 1,
+        };
+        this._elementCount += 1;
+
+        return this;
+    }
+
+    addFloatArray(key: string, elementCount: number): this
+    {
+        this._declarations.push(`${key}: vec${elementCount}<f32>,`);
+        this._members[key] = {
+            offset: this._elementCount,
+            size: elementCount,
+        };
+        this._elementCount += elementCount;
+
+        return this;
+    }
+
+    addIntArray(key: string, elementCount: number): this
+    {
+        this._declarations.push(`${key}: vec${elementCount}<i32>,`);
+        this._members[key] = {
+            offset: this._elementCount,
+            size: elementCount,
+        };
+        this._elementCount += elementCount;
+
+        return this;
+    }
+
+    create(): this
+    {
+        this._byteSize = this._elementCount * Float32Array.BYTES_PER_ELEMENT;
+        this._arrayBuffer = new ArrayBuffer(this._byteSize);
+        this._floatArray = new Float32Array(this._arrayBuffer);
+        this._intArray = new Int32Array(this._arrayBuffer);
+
+        return this;
+    }
+
+    setFloat(key: string, value: number): this
+    {
+        const member = this._members[key];
+        this._floatArray[member.offset] = value;
+
+        return this;
+    }
+
+    setFloatArray(key: string, array: ArrayLike<number>): this
+    {
+        const member = this._members[key];
+        this._floatArray.set(array, member.offset);
+
+        return this;
+    }
+
+    setInt(key: string, value: number): this
+    {
+        const member = this._members[key];
+        this._intArray[member.offset] = value;
+
+        return this;
+    }
+
+    setIntArray(key: string, array: ArrayLike<number>): this
+    {
+        const member = this._members[key];
+        this._intArray.set(array, member.offset);
+
+        return this;
+    }
+
+    createDeviceBuffer(usage?: GPUBufferUsageFlags): GPUBuffer
+    {
+        return this.device.createBuffer({
+            size: this._byteSize,
+            usage: usage ?? GPUBufferUsage.COPY_DST | GPUBufferUsage.UNIFORM,
         });
-
-        this._floatArray = new Float32Array(this.hostBuffer);
-        this._intArray = new Int32Array(this.hostBuffer);
     }
 
-    update()
+    createShaderStruct(typeName = "Uniforms"): string
     {
-        this.device.queue.writeBuffer(this.deviceBuffer, 0, this.hostBuffer, 0);
+        return [
+            `struct ${typeName} {`,
+            ...this._declarations,
+            "}\n\n",
+        ].join("\n");
     }
 
-    destroy()
+    createBindGroupLayoutEntry(
+        binding: number, visibility?: GPUShaderStageFlags): GPUBindGroupLayoutEntry
     {
-        this.deviceBuffer.destroy();
+        return {
+            binding,
+            buffer: { type: "uniform", minBindingSize: this._byteSize },
+            visibility: visibility ?? GPUShaderStage.FRAGMENT
+        };
     }
 
-    setFloat(index: number, value: number)
+    writeBuffer(deviceBuffer: GPUBuffer)
     {
-        this._floatArray[index] = value;
-    }
-
-    setFloatArray(index: number, array: ArrayLike<number>)
-    {
-        this._floatArray.set(array, index);
-    }
-
-    setInt(index: number, value: number)
-    {
-        this._intArray[index] = value;
-    }
-
-    setIntArray(index: number, array: ArrayLike<number>)
-    {
-        this._intArray.set(array, index);
+        this.device.queue.writeBuffer(deviceBuffer, 0, this._arrayBuffer, 0);
     }
 }
