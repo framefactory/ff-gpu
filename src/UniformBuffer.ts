@@ -58,6 +58,10 @@ export class UniformBuffer
 
     addFloatArray(key: string, elementCount: number): this
     {
+        if (elementCount === 1) {
+            return this.addFloat(key);
+        }
+
         this._declarations.push(`${key}: vec${elementCount}<f32>,`);
         this._members[key] = {
             offset: this._elementCount,
@@ -70,6 +74,10 @@ export class UniformBuffer
 
     addIntArray(key: string, elementCount: number): this
     {
+        if (elementCount === 1) {
+            return this.addInt(key);
+        }
+
         this._declarations.push(`${key}: vec${elementCount}<i32>,`);
         this._members[key] = {
             offset: this._elementCount,
@@ -130,7 +138,7 @@ export class UniformBuffer
         });
     }
 
-    createShaderStruct(typeName = "Uniforms"): string
+    createStructDeclaration(typeName = "Uniforms"): string
     {
         return [
             `struct ${typeName} {`,
